@@ -21,7 +21,3 @@ connectToDatabase()
         console.error("Error crítico: No se pudo conectar a la base de datos. Servidor no iniciado.", error);
         process.exit(1); // Termina la aplicación si la conexión a la DB falla
     });
-
-app.listen(port, () => {
-  console.log(`Servidor Express corriendo en http://localhost:${port}`);
-});
