@@ -1,0 +1,17 @@
+name: 'ts-express' 
+services:  
+  mongo:    
+    # La versión 4.4 no requiere AVX. Podrías probar 4.2 o 4.0 si la 4.4 falla.
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db # Persistencia de datos para MongoDB
+    environment:
+      # Opcional: Configura un usuario y contraseña root para MongoDB.
+      MONGO_INITDB_ROOT_USERNAME: fernando
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: db1
+
+volumes:
+  mongo_data: # Define el volumen para la persistencia de datos de MongoDB

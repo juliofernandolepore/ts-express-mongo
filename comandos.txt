@@ -3,6 +3,11 @@ npm install express
 npm install -D typescript @types/node @types/express ts-node nodemon
 npx tsc --init
 
+INSTALACION DE MONGO y dotenv
+
+npm install mongodb dotenv
+npm install @types/mongodb --save-dev
+
 
 powershell
 Set-ExecutionPolicy Unrestricted
