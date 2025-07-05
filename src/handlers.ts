@@ -1,39 +1,35 @@
 import { Request, Response } from 'express';
+import { crearUsuario, Usuario } from './models/usuario';
+import { JSONResponse } from './models/jsonRes';
+import { UsuarioService } from './services/usuario';
 
-export const info = (req: Request, res: Response) => {
-  res.status(200).json({
-    version: '1.0.0',
-    descripcion: 'Una API de ejemplo para demostrar la modularización de rutas.',
-    fecha: new Date().toISOString()
-  });
-}
+export const registrarUsuario = async (req: Request, res: Response) => {
+  
+  try {
+    
+    const datosDelCliente: Usuario = req.body;
+    const nuevoUsuario = crearUsuario(datosDelCliente);
+    const respuesta: JSONResponse = {
+      menssage: `registro exitoso de nuevo usuario ${nuevoUsuario.email}`,
+      error: false,
+    }
+    // Utiliza el servicio para crear el usuario en la base de datos
+    const nuevoUsuarioDB = await UsuarioService.crearUsuario(nuevoUsuario);     
+    console.log('Usuario guardado en la base de datos:', nuevoUsuarioDB);
 
-export const datos = (req: Request, res: Response) => {
-  const datosRecibidos = req.body; // Accede al cuerpo de la solicitud.
-  console.log('Datos recibidos (POST):', datosRecibidos);
-  res.json({
-    mensaje: 'Datos recibidos con éxito',
-    tusDatos: datosRecibidos
-  }) };
+    res.status(201).json(
+      respuesta
+    );
 
-export const getRoot = (req: Request, res: Response) => {
-  res.send('¡Bienvenido a la API! Esta es la ruta principal.');
+  } catch (error: any) {
+    console.error('Error al registrar usuario:', error.message);
+    res.status(500).json({ 
+      version: '1.0.0',
+      description: 'Endpoint para registrar usuario.',
+      fecha: new Date().toISOString(),
+      error: 'Error interno del servidor al procesar la solicitud. ' + error.message,
+    });
+  }
 };
 
-export const getSaludoConNombre = (req: Request, res: Response) => {
-  const nombre = req.params.nombre; // Obtiene el parámetro 'nombre' de la URL.
-  res.send(`¡Hola, ${nombre}! Saludos desde la API.`);
-};
 
-
-export const getHome = (req: Request, res: Response) => {
-  res.send('¡Hola desde tu backend Express con TypeScript!');
-};
-
-export const getUsers = (req: Request, res: Response) => {
-  const users = [
-    { id: 1, name: 'Julio' },
-    { id: 2, name: 'Maria' } 
-  ];
-  res.json(users); // parsea a json
-};

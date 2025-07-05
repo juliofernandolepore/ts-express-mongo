@@ -2,13 +2,19 @@ import express from 'express';
 import router from './rutas';
 import { connectToDatabase } from './config/database';
 import * as dotenv from 'dotenv';
+import cors from 'cors';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware para parsear JSON en el cuerpo de las solicitudes
+// uso de cors (fase desarrollo)
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
+
 app.use(express.json());
-// paso el objeto router como parametro contiene todos los endpoints
 app.use(router);
 
 connectToDatabase()
@@ -19,5 +25,5 @@ connectToDatabase()
     })
     .catch(error => {
         console.error("Error crítico: No se pudo conectar a la base de datos. Servidor no iniciado.", error);
-        process.exit(1); // Termina la aplicación si la conexión a la DB falla
+        process.exit(1);
     });

@@ -7,6 +7,10 @@ INSTALACION DE MONGO y dotenv
 
 npm install mongodb dotenv
 npm install @types/mongodb --save-dev
+npm install mongodb @types/mongodb
+
+CORS (para desarrollo)
+npm install cors @types/cors
 
 
 powershell
