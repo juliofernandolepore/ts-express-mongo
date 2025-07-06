@@ -13,6 +13,7 @@ export interface Usuario {
   domicilio: string;
   telefono: string;
   sucursal: string;
+  rol?: string;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;
 }
@@ -20,6 +21,7 @@ export interface Usuario {
 export function crearUsuario(datosUsuario: Usuario): Usuario {
   const nuevoUsuario: Usuario = {
     ...datosUsuario,
+    rol: "sin permisos",
     fechaCreacion: datosUsuario.fechaCreacion || new Date(),
     fechaActualizacion: new Date(),
   };

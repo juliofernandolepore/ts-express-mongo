@@ -12,6 +12,13 @@ npm install mongodb @types/mongodb
 CORS (para desarrollo)
 npm install cors @types/cors
 
+ENCRIPTACION passwords
+npm install bcrypt
+npm install @types/bcrypt --save-dev # Para las definiciones de tipo de TypeScript
+
+TOKENS (JWT)
+npm install jsonwebtoken
+npm install @types/jsonwebtoken --save-dev
 
 powershell
 Set-ExecutionPolicy Unrestricted

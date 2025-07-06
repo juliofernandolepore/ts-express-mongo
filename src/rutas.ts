@@ -5,5 +5,6 @@ import * as middlewares from './middleware';
 const router = Router();
 
 router.post('/usuario/registrar', handlers.registrarUsuario);
+router.post('/usuario/iniciarsesion', handlers.iniciarSesion);
 
 export default router;
