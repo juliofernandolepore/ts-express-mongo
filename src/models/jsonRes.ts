@@ -2,7 +2,7 @@
 
 export interface JSONResponse {
     error: boolean
-    menssage: string
+    message: string
     data?: any
 
 };

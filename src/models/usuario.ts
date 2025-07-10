@@ -5,14 +5,14 @@
 
 export interface Usuario {
   id?: string;
-  dni: number;
+  dni?: number;
   nombre: string;
   apellido: string;
   password: string;
   email: string;
-  domicilio: string;
-  telefono: string;
-  sucursal: string;
+  domicilio?: string;
+  telefono?: string;
+  sucursal?: string;
   rol?: string;
   fechaCreacion?: Date;
   fechaActualizacion?: Date;

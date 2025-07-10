@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from "mongodb";
 import * as dotenv from "dotenv";
-import { login } from "../models/login";
+import { Login } from "../models/login";
 
 dotenv.config();
 

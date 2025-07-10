@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { login } from '../models/login'; // Importa tu interfaz ILogin
+import { Login } from '../models/login'; // Importa tu interfaz ILogin
 
 const SALT_ROUNDS = 10;
 
@@ -24,7 +24,7 @@ export const comparePassword = async (plainPassword: string, hashedPassword: str
 };
 
 // Ejemplo de cómo podrías usarlo en un proceso de registro:
-export async function registerUser(loginData: login): Promise<login> {
+export async function registerUser(loginData: Login): Promise<Login> {
     try {
         const hashedPassword = await hashPassword(loginData.password);
         const newUser = {
