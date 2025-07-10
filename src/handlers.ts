@@ -5,6 +5,7 @@ import { JSONResponse } from './models/jsonRes';
 import { findUserByEmail, getAllUsuarios, updateRolToEmpleado, UsuarioService } from './services/usuario';
 import { Login } from './models/login';
 import { compararPassword } from './utils/comparePasswords';
+import { generarToken, IAuthResponse } from './tokens/tokens';
 
 export const registrarUsuario = async (req: Request, res: Response) => {
   
@@ -37,44 +38,48 @@ export const registrarUsuario = async (req: Request, res: Response) => {
 };
 
 export const iniciarSesion = async (req: Request, res: Response) => {
-    try {
-      // instancio un objeto vacio
-      const respuesta: JSONResponse = {
-      message: "",
-      error: false,
-    }   
-    // relleno un objeto login    
-    const datosDelCliente: Login = req.body;
-    const login = crearSesion(datosDelCliente);
-     // instancio un objeto Usuarioservice
-    const resultado: Usuario | null = await findUserByEmail(login.email)
-    console.log(resultado);
-    // validar longitud de usuario y password (datos cliente contra resultado)
-    if (resultado == null) { // Asumiendo que findUserbyEmail devuelve null/undefined si no se encuentra
+    try {      
+      const respuesta: JSONResponse = {message: "",error: false,}   // instancio un objeto vacio        
+      const datosDelCliente: Login = req.body; // relleno un objeto login
+      const login = crearSesion(datosDelCliente);
+      const usuarioConsultado: Usuario | null = await findUserByEmail(login.email)
+      console.log(usuarioConsultado);
+      // validar longitud de usuario y password (datos cliente contra resultado)
+    if (usuarioConsultado == null) { // Asumiendo que findUserbyEmail devuelve null/undefined si no se encuentra
             respuesta.message = "No esta registrado.";
             respuesta.error = true;
             res.status(401).json(respuesta); // 401 No autorizado
             return
         }
-
         // Añadir comparación de contraseña aquí (ej. usando bcrypt)
-        const isPasswordValid: Boolean = compararPassword(login.password, resultado.password);
+        const isPasswordValid: boolean = compararPassword(login.password, usuarioConsultado.password);
         if (!isPasswordValid) {
             respuesta.message = "Usuario o contraseña invalidas.";
             respuesta.error = true;
             res.status(401).json(respuesta);
             return
         }
-    if (resultado.rol != "jefe" && resultado.rol != "empleado") {
+    if (usuarioConsultado.rol != "jefe" && usuarioConsultado.rol != "empleado") {
       respuesta.message = "usuario sin permisos suficientes.";
       respuesta.error = true;
       res.status(401).json(respuesta);
       return
     } 
-    // si esta registrado y tiene rol (empleado o jefe ) con acceso crear token personalizado 
-    respuesta.message = "el usuario esta registradp, se le enviara token de acceso"
+    // si esta registrado y tiene rol (empleado o jefe ) con acceso crear token personalizado
+    const payload: IAuthResponse = {
+      id_usuario: usuarioConsultado.id,
+      nombreEmpleado: usuarioConsultado.nombre,
+      permisos: usuarioConsultado.rol,
+      localComercial: usuarioConsultado.sucursal,
+      usuarioempleado: usuarioConsultado.email,
+      fechaCreacion: usuarioConsultado.fechaCreacion
+    }
+    // no pide llave encriptada porque la toma del env desde el mismo modulo de tokens
+    const tokenGenerado: string = generarToken(payload);
+    console.log(tokenGenerado) 
+    respuesta.message = "el usuario esta registrado, se le enviara token de acceso"
     respuesta.error = false
-    res.status(201).json(respuesta);
+    res.cookie('acceso', tokenGenerado).status(201).json(respuesta);
     
   } catch (error: any) {
      const respuesta: JSONResponse = {

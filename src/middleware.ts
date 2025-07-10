@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { JSONResponse } from './models/jsonRes';
 import { Login } from './models/login';
-import { generarToken } from './tokens/tokens';
+import { verifToken } from './tokens/tokens';
 
 declare module 'express' {
     interface Request {
@@ -28,6 +28,14 @@ export const verificarToken = (req: Request, res: Response, next: NextFunction) 
     res.json(respuesta)
     return
     // (opcional)  res.redirect('/usuario/autenticar')
+  }
+  // comprobar token recibido
+  try {
+    const llave: string | undefined = process.env.JWT_SECRET
+    const resultado = verifToken(_token, llave)
+    console.log(resultado);
+  } catch (error) {
+    res.clearCookie(_token)
   }
   next();
 };
