@@ -153,3 +153,25 @@ export const updateRolToEmpleado = async (email: string): Promise<boolean | null
         throw new Error(`Could not update rol for user by email: ${email}`);
     }
 };
+
+
+// este servicio devuelve un arreglo de usuarios o un null
+export const getAllUsuarios = async (): Promise<Usuario[] | null> => {
+  try {
+    const collection = getUsuariosCollection();
+    if (!collection) {
+      throw new Error("La colección 'usuarios' no está inicializada. Asegúrate de llamar a connectToDatabase() primero.");
+    }
+
+    const todos = await collection.find({}).toArray(); // Encuentra todos los documentos y conviértelos a un array
+    
+    if (todos.length === 0) {
+      return null; // O puedes retornar un array vacío [] si prefieres
+    }
+
+    return todos as Usuario[]; // Asegúrate de que los documentos encontrados coincidan con el tipo Usuario
+  } catch (error) {
+    console.error('Error al obtener todos los usuarios:', error);
+    throw error; // Vuelve a lanzar el error para quien llame a la función lo maneje
+  }
+};

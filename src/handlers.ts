@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { crearUsuario, Usuario } from './models/usuario';
 import { crearSesion } from './models/login';
 import { JSONResponse } from './models/jsonRes';
-import { findUserByEmail, updateRolToEmpleado, UsuarioService } from './services/usuario';
+import { findUserByEmail, getAllUsuarios, updateRolToEmpleado, UsuarioService } from './services/usuario';
 import { Login } from './models/login';
 import { compararPassword } from './utils/comparePasswords';
 
@@ -154,4 +154,35 @@ export const convertirEmpleado = async (req: Request, res: Response) => {
   }
 };
 
+
+export const handlerVerAllUsuarios = async (req: Request, res: Response) =>{
+   try {
+    const respuesta: JSONResponse = {message: "", error: false,}          
+    const datosDelCliente: Login = req.body;
+    const login = crearSesion(datosDelCliente);
+    const resultado: Usuario[] | null = await getAllUsuarios()
+    if (resultado == null) {
+            respuesta.message = "no hay usuarios registrados.";
+            respuesta.error = true;
+            res.status(404).json(respuesta);
+            return
+        }  
+    // si hay un resultado valido o un arreglo vacio 
+    respuesta.message = "resultado de la busqueda de todos los usuarios registrados"
+    respuesta.error = false
+    respuesta.data = resultado
+    res.status(201).json(respuesta);
+    
+  } catch (error: any) {
+     const respuesta: JSONResponse = {
+      message: `Fallo: ocurrio un problema en la consulta ver todos los usuarios`,
+      error: false,
+    }
+    console.error('Error al traer todos los usuarios:', error.message);
+    res.status(500).json({ 
+      respuesta
+    });
+  }
+  
+};
 

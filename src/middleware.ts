@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { JSONResponse } from './models/jsonRes';
 import { Login } from './models/login';
 import { generarToken } from './tokens/tokens';
@@ -15,9 +15,23 @@ declare module 'express' {
     }
 }
 
-// unica responsabilidad verificar que existe y sea usuario admin o permisos superiores
-// endpoint protegidas para rol determinado
-// en esta etapa solo validacion con tokens
+// unica responsabilidad verificar la existencia de usuario y rol y crear un token especifico
+export const verificarToken = (req: Request, res: Response, next: NextFunction) => {
+  const respuesta: JSONResponse = {error:false, message:"" }
+  // verificar la existencia de token
+  const {_token} = req.cookies // desestructuro
+  if (!_token){
+    // primero declaro el status y luego envio el json 
+    res.status(401)       
+    respuesta.error = true
+    respuesta.message = "no existe ningun token de acceso"
+    res.json(respuesta)
+    return
+    // (opcional)  res.redirect('/usuario/autenticar')
+  }
+  next();
+};
+
 export const jwtOnlyJefe = (req: Request, res: Response, next: NextFunction) => {
     try{
         const login: Login = req.body
@@ -49,16 +63,7 @@ export const jwtOnlyJefe = (req: Request, res: Response, next: NextFunction) => 
     next();   
 };
 
-
-// unica responsabilidad verificar que existe y sea usuario empleado
-// endpoint protegidas para rol determinado
-// en esta etapa validacion con toneks
 export const jwtOnlyEmpleado = (req: Request, res: Response, next: NextFunction) => {
   console.log(req)
   next(); 
-};
-
-// unica responsabilidad verificar la existencia de usuario y rol y crear un token especifico
-export const loginGeneracionToken = (req: Request, res: Response, next: NextFunction) => {
-
 };

@@ -20,5 +20,9 @@ TOKENS (JWT)
 npm install jsonwebtoken
 npm install @types/jsonwebtoken --save-dev
 
+COOKIE PARSER
+npm install --save-dev @types/cookie-parser
+npm install cookie-parser
+
 powershell
 Set-ExecutionPolicy Unrestricted

@@ -2,6 +2,7 @@ import express from 'express';
 import router from './rutas';
 import { connectToDatabase } from './config/database';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
 app.use(express.urlencoded({extended: true}))
+app.use(cookieParser());
 app.use(express.json());
 app.use('/', router);
 
