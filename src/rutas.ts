@@ -10,7 +10,7 @@ router.post('/usuario/registrar', handlers.registrarUsuario);
 // puede recibir un token existente y hacer refresh (opcional)
 router.post('/usuario/autenticar', handlers.iniciarSesion);
 // cada una de las rutas estan protegidas con middleware de auth por token (incluye rol)
-router.post('/usuario/convertirempleado', handlers.convertirEmpleado) // handler para pruebas no accesible a usuarios
-router.get('/usuario/vertodos', middlewares.verificarToken, handlers.handlerVerAllUsuarios) // ver todos los usuarios ( rol empleado o jefe)
+router.post('/usuario/convertirempleado',middlewares.accesoJefe , handlers.convertirEmpleado) // handler para pruebas no accesible a empleados
+router.get('/usuario/vertodos', middlewares.accesoCompartido, handlers.handlerVerAllUsuarios) // ver todos los usuarios (rol empleado o jefe)
 
 export default router;

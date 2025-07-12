@@ -1,7 +1,10 @@
-import { Request, Response, NextFunction, CookieOptions } from 'express';
-import { JSONResponse } from './models/jsonRes';
+import { Request, Response, NextFunction} from 'express';
+import { JSONRespuesta } from './models/jsonRes';
 import { Login } from './models/login';
-import { verifToken } from './tokens/tokens';
+import { IAuthResponse } from './tokens/tokens';
+import * as jwt from 'jsonwebtoken';
+import { Usuario } from './models/usuario';
+import { findUserByEmail } from './services/usuario';
 
 declare module 'express' {
     interface Request {
@@ -15,63 +18,70 @@ declare module 'express' {
     }
 }
 
-// unica responsabilidad verificar la existencia de usuario y rol y crear un token especifico
-export const verificarToken = (req: Request, res: Response, next: NextFunction) => {
-  const respuesta: JSONResponse = {error:false, message:"" }
-  // verificar la existencia de token
-  const {_token} = req.cookies // desestructuro
+// unica responsabilidad verificar la existencia de usuario y rol y crear un token especifico (acceso para jefe y empleado)
+export const accesoCompartido = async (req: Request, res: Response, next: NextFunction) => { 
+  const respuesta: JSONRespuesta = JSONRespuesta.vacio(); 
+  const {_token} = req.cookies // desestructuro // verificar la existencia de token
   if (!_token){
-    // primero declaro el status y luego envio el json 
-    res.status(401)       
-    respuesta.error = true
-    respuesta.message = "no existe ningun token de acceso"
-    res.json(respuesta)
-    return
-    // (opcional)  res.redirect('/usuario/autenticar')
+    respuesta.modificar(true, "no existe ningun token de acceso");     
+    res.status(401)
+    res.json(respuesta) // primero declaro el status y luego envio el json
+    return // (opcional)  res.redirect('/usuario/autenticar')    
   }
-  // comprobar token recibido
   try {
-    const llave: string | undefined = process.env.JWT_SECRET
-    const resultado = verifToken(_token, llave)
-    console.log(resultado);
+    // comprobar token recibido
+    const llave: any = process.env.JWT_SECRET
+    if (llave == undefined){
+      return
+    }
+    // token decodificado // contrasta con la llave para determinar si es valido
+    const resultado: any = jwt.verify(_token, llave);
+    const usuarioConsultado: Usuario | null = await findUserByEmail(resultado.usuarioempleado)
+    if (usuarioConsultado == null){
+      respuesta.modificar(true, "usuario no registrado")
+      res.status(404)
+      res.json(respuesta)
+      return
+    }
   } catch (error) {
     res.clearCookie(_token)
   }
   next();
 };
 
-export const jwtOnlyJefe = (req: Request, res: Response, next: NextFunction) => {
+export const accesoJefe = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const login: Login = req.body
-      let respuesta: JSONResponse = {
-      message: `ingreso exitoso de usuario ${login.email}`,
-      error: false,
-    }
+        const respuesta: JSONRespuesta = JSONRespuesta.vacio()
       if (login.email == "juliofernandolepore@gmail.com") {
-        console.log("usuario vetado")
-         res.status(401).json({
-            message: "usuario vetado",
-            error: true
-     })
-     return
-      }    
+          console.log("usuario vetado")
+          respuesta.message= "usuario vetado" 
+          respuesta.error= true
+          res.status(401).json(respuesta)
+          return
+          }    
     
-    }
+         }
     catch (error: any) {
-     const respuesta: JSONResponse = {
-      message: `Fallo: el usuario no pudo ingresar en el sistema`,
-      error: false,
-    }
-    console.error('Error al iniciar sesion:', error.message);
-    res.status(500).json({ 
-      respuesta
-    });
+     const respuesta: JSONRespuesta = JSONRespuesta.vacio();
+     respuesta.modificar(true, "fallo la autenticacion")
+     console.error('Error verificar el permiso:', error.message);
+      res.status(500).json({respuesta});
     return
   }      
     next();   
 };
 
-export const jwtOnlyEmpleado = (req: Request, res: Response, next: NextFunction) => {
-  console.log(req)
-  next(); 
-};
+
+// midlleware a modo de ejemplo, express resuelve por si el tema del metodo
+export const metodoValido = (metodo: string) => { 
+  return (req: Request, res: Response, next: NextFunction) => {
+        if (req.method !== metodo) {
+           const respuesta: JSONRespuesta = JSONRespuesta.vacio();
+           respuesta.modificar(true, `metodo incorrecto, ingrese el metodo: ${metodo}`)    
+           res.status(405)
+           res.json(respuesta)
+           return
+         }   
+  next();
+}};

@@ -79,7 +79,7 @@ export const iniciarSesion = async (req: Request, res: Response) => {
     console.log(tokenGenerado) 
     respuesta.message = "el usuario esta registrado, se le enviara token de acceso"
     respuesta.error = false
-    res.cookie('acceso', tokenGenerado).status(201).json(respuesta);
+    res.cookie('acceso', tokenGenerado, {httpOnly: true }).status(201).json(respuesta);
     
   } catch (error: any) {
      const respuesta: JSONResponse = {
@@ -161,10 +161,9 @@ export const convertirEmpleado = async (req: Request, res: Response) => {
 
 
 export const handlerVerAllUsuarios = async (req: Request, res: Response) =>{
+  
    try {
     const respuesta: JSONResponse = {message: "", error: false,}          
-    const datosDelCliente: Login = req.body;
-    const login = crearSesion(datosDelCliente);
     const resultado: Usuario[] | null = await getAllUsuarios()
     if (resultado == null) {
             respuesta.message = "no hay usuarios registrados.";
